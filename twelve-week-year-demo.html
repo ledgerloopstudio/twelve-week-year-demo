@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 Week Year Planner — LedgerLoopStudio (Free Demo)</title>
+<style>
+:root{
+  --accent:#0F7B6C; --accent-d:#0B5F54; --accent-l:#E6F2F0;
+  --bg:#F4F6F7; --card:#FFFFFF; --ink:#1B2A36; --ink2:#31485A; --grey:#5A6B78;
+  --rule:#E2E6E9; --soft:#F7F8F9;
+  --ok:#12B76A; --warn:#B9770E; --bad:#C0392B; --navy:#2E5C8A;
+  --r:12px; --sh:0 1px 2px rgba(20,35,45,.06), 0 4px 14px rgba(20,35,45,.05);
+}
+[data-theme="dark"]{
+  --bg:#0F171C; --card:#182028; --ink:#EDF1F4; --ink2:#C7D3DB; --grey:#93A2AD;
+  --rule:#28343E; --soft:#1D2731; --accent-l:#15302C;
+}
+body[data-style="calm"]{ --r:14px; }
+body[data-style="bold"]{ --r:6px; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+textarea{resize:vertical;min-height:70px}
+label{display:block;font-size:12px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.hide{display:none !important}
+
+/* topbar */
+.top{position:sticky;top:0;z-index:40;background:var(--card);border-bottom:1px solid var(--rule)}
+body[data-style="bold"] .top{background:linear-gradient(90deg,var(--accent),var(--accent-d));border-bottom:none}
+body[data-style="bold"] .top .brand,body[data-style="bold"] .top .tab{color:#fff}
+body[data-style="bold"] .top .tab.on{background:rgba(255,255,255,.18);color:#fff}
+.topin{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;color:var(--ink)}
+.mark{width:22px;height:22px;border-radius:6px;border:2.5px solid var(--accent);flex:none}
+body[data-style="bold"] .mark{border-color:#fff}
+.tabs{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+.tab{background:none;border:none;color:var(--grey);padding:7px 11px;border-radius:8px;font-size:13.5px;font-weight:600}
+.tab:hover{color:var(--ink);background:var(--soft)}
+.tab.on{color:var(--accent);background:var(--accent-l)}
+.iconbtn{background:none;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600}
+body[data-style="bold"] .iconbtn{border-color:rgba(255,255,255,.4);color:#fff}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 16px 60px}
+
+/* cycle bar */
+.cyclebar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.pill{background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink2)}
+.pill b{color:var(--ink)}
+.pill.live{border-color:var(--accent);color:var(--accent);background:var(--accent-l)}
+
+/* cards & grid */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:14px}
+.card>h2{font-size:15px;margin-bottom:2px}
+.card>.sub{color:var(--grey);font-size:13px;margin-bottom:12px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.row>div{flex:1;min-width:150px}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-weight:700;font-size:13.5px}
+.btn:hover{background:var(--accent-d)}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--rule)}
+.btn.sm{padding:5px 9px;font-size:12.5px}
+.btn.danger{background:none;color:var(--bad);border:1px solid var(--rule)}
+
+/* KPI */
+.kpi{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
+.kpi .k{font-size:11.5px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:30px;font-weight:800;margin-top:5px;letter-spacing:-.02em}
+.kpi .n{font-size:12px;color:var(--grey);margin-top:2px}
+
+/* bars */
+.bar{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;border:1px solid var(--rule)}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.spark{display:flex;align-items:flex-end;gap:3px;height:56px}
+.spark>i{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;position:relative}
+.spark>i.future{background:var(--rule)}
+.spark>i.low{background:var(--bad)}
+.spark>i.mid{background:var(--warn)}
+.spark>i.now{outline:2px solid var(--ink);outline-offset:1px}
+.sparkx{display:flex;gap:3px;margin-top:4px}
+.sparkx>span{flex:1;text-align:center;font-size:10px;color:var(--grey)}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);border-bottom:1px solid var(--rule);padding:8px 6px;font-weight:700}
+td{border-bottom:1px solid var(--rule);padding:9px 6px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tw{overflow-x:auto}
+
+/* scorecard matrix */
+.mx th.wk{text-align:center;width:44px}
+.mx td.wk{text-align:center;padding:4px}
+.mx td.wk input{width:20px;height:20px;padding:0;accent-color:var(--accent);cursor:pointer}
+.mx td.name{min-width:220px}
+.mx .goaltag{font-size:11px;color:var(--grey);display:block}
+.wkscore{text-align:center;font-weight:800;font-size:12px;padding:6px 2px;border-radius:6px}
+.s-ok{background:rgba(18,183,106,.14);color:var(--ok)}
+.s-mid{background:rgba(185,119,14,.14);color:var(--warn)}
+.s-bad{background:rgba(192,57,43,.13);color:var(--bad)}
+.s-none{background:var(--soft);color:var(--grey)}
+
+/* badges */
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--soft);color:var(--grey);border:1px solid var(--rule)}
+.tag.ok{background:rgba(18,183,106,.13);color:var(--ok);border-color:transparent}
+.tag.warn{background:rgba(185,119,14,.13);color:var(--warn);border-color:transparent}
+.tag.bad{background:rgba(192,57,43,.12);color:var(--bad);border-color:transparent}
+.tag.acc{background:var(--accent-l);color:var(--accent);border-color:transparent}
+
+.empty{text-align:center;color:var(--grey);padding:26px 10px;font-size:14px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule)}
+.list li:last-child{border-bottom:none}
+.mini{font-size:12px;color:var(--grey)}
+
+/* model week */
+.mw{overflow-x:auto}
+.mw table{min-width:640px}
+.mw td.slot{padding:2px}
+.mw button.blk{width:100%;border:1px solid var(--rule);background:var(--card);border-radius:6px;padding:6px 2px;font-size:11px;font-weight:700;color:var(--grey)}
+.mw button.blk[data-t="S"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.mw button.blk[data-t="B"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.mw button.blk[data-t="K"]{background:var(--warn);border-color:var(--warn);color:#fff}
+
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(12,22,28,.55);display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow:auto;z-index:60}
+.modal{background:var(--card);border-radius:14px;max-width:640px;width:100%;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.modal h3{font-size:16px;margin-bottom:12px}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+
+/* style popover */
+.pop{position:absolute;right:16px;top:56px;background:var(--card);border:1px solid var(--rule);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.18);padding:14px;width:280px;z-index:50}
+.sw{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.sw button{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0}
+.sw button.on{outline:2px solid var(--ink);outline-offset:2px}
+.seg{display:flex;gap:4px;background:var(--soft);padding:3px;border-radius:9px}
+.seg button{flex:1;background:none;border:none;border-radius:7px;padding:6px 4px;font-size:12.5px;font-weight:700;color:var(--grey)}
+.seg button.on{background:var(--card);color:var(--accent);box-shadow:var(--sh)}
+
+.foot{color:var(--grey);font-size:12px;text-align:center;padding:18px 0 0}
+@media print{
+  .top,.cyclebar,.iconbtn,.btn,.pop,.tabs{display:none !important}
+  body{background:#fff}
+  .card{break-inside:avoid;box-shadow:none;border-color:#ccc}
+  .wrap{max-width:none;padding:0}
+}
+.demo-banner{position:sticky;top:0;z-index:9999;background:#B9770E;color:#fff;font:600 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;text-align:center;padding:9px 14px}
+.demo-banner a{color:#fff;text-decoration:underline}
+.demo-banner .x{position:absolute;right:10px;top:6px;background:none;border:none;color:#fff;font:inherit;cursor:pointer;opacity:.85;padding:4px 8px}
+.demo-banner .x:hover{opacity:1}
+.buildstamp{max-width:1180px;margin:0 auto;padding:4px 22px 30px;color:#8A9AA5;font-size:11px;letter-spacing:.04em;text-align:right}
+</style>
+</head>
+<body data-style="calm">
+
+<!-- ===== LEDGERLOOPSTUDIO DEMO BAR ===== -->
+<div id="lls-demo-bar" style="position:fixed;top:0;left:0;right:0;z-index:999999;background:#0F766E;color:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;text-align:center;padding:9px 12px;box-shadow:0 2px 12px rgba(0,0,0,.18);line-height:1.4;">
+  <span style="margin-right:6px;">&#127876;</span> FREE DEMO &mdash; LedgerLoopStudio
+  <span style="opacity:.65;font-weight:400;margin:0 8px;">|</span>
+  <a href="https://www.etsy.com/shop/LedgerLoopStudio" target="_blank" rel="noopener" style="color:#FFFFFF;text-decoration:underline;text-underline-offset:2px;font-weight:700;">Get the full version on Etsy</a>
+  <span style="opacity:.65;font-weight:400;margin-left:8px;">(10 entries max in demo)</span><span id="demo-entry-counter" style="opacity:.85;font-weight:600;margin-left:12px;background:rgba(255,255,255,.2);padding:2px 10px;border-radius:10px;">0/10 entries used</span>
+</div>
+<script>
+(function(){
+  // Push body content below the demo bar so nothing is hidden
+  function padBody(){
+    var bar = document.getElementById('lls-demo-bar');
+    if (bar) document.body.style.paddingTop = bar.offsetHeight + 'px';
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', padBody);
+  else padBody();
+  window.addEventListener('resize', padBody);
+  setTimeout(padBody, 500);
+})();
+</script>
+<!-- ===== /DEMO BAR ===== -->
+
+
+<div class="demo-banner" id="demoBanner">DEMO — example cycle, add up to 15 of your own cycles/goals and see whether it thinks the way you do. Nothing is saved permanently and it can reset any time. <a href="https://www.etsy.com/shop/LedgerLoopStudio" target="_blank" rel="noopener">Buy the full version</a> for your own unlimited, permanent copy.<button class="x" onclick="document.getElementById('demoBanner').style.display='none'" aria-label="Dismiss">✕</button></div>
+
+<div class="top">
+  <div class="topin">
+    <div class="brand"><span class="mark"></span> 12 Week Year Planner</div>
+    <div class="tabs" id="tabs"></div>
+    <button class="iconbtn" id="styleBtn">Style</button>
+    <button class="iconbtn" id="themeBtn">Dark</button>
+    <button class="iconbtn" id="printBtn">Print</button>
+  </div>
+</div>
+
+<div id="pop" class="pop hide">
+  <label>Accent colour</label>
+  <div class="sw" id="swatches"></div>
+  <label>Look</label>
+  <div class="seg" id="styleSeg">
+    <button data-s="calm">Calm</button>
+    <button data-s="focus">Focus</button>
+    <button data-s="bold">Bold</button>
+  </div>
+  <div style="margin-top:12px"><label>Custom accent</label><input type="color" id="customAccent"></div>
+</div>
+
+<div class="wrap">
+  <div class="cyclebar" id="cyclebar"></div>
+  <div id="view"></div>
+  <div class="foot">Your data is saved in this browser on this device only. Use Backup in Settings before clearing browser data or switching computers.</div>
+</div>
+
+<div id="modalHost"></div>
+
+<script>
+/* ============================================================
+   12 WEEK YEAR PLANNER — single file, localStorage, offline.
+   No network calls of any kind.
+   ============================================================ */
+var KEY = "llsTwelveWeek_v1";
+/* ---- demo-only limit: this block exists only in the public try-it demo, never in the sold product ---- */
+var DEMO_MODE = true, DEMO_CYCLE_LIMIT = 16; /* 1 seeded + 15 room to try adding your own */
+function demoLimitReached(){
+  if(!DEMO_MODE) return false;
+  if(!DB || !DB.cycles || DB.cycles.length < DEMO_CYCLE_LIMIT) return false;
+  alert("You've reached the "+DEMO_CYCLE_LIMIT+"-cycle demo limit.\n\nThis is just a preview — buy the full version for unlimited cycles, all features unlocked, and your own permanent copy.");
+  return true;
+}
+var ACCENTS = ["#0F7B6C","#2E5C8A","#7A4E8C","#B9902E","#C0392B","#2F7A3E","#D2691E","#22333F"];
+var AREAS = ["Career / Business","Money","Health & Fitness","Relationships","Personal Growth","Fun & Recreation","Environment","Contribution"];
+var DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+var HOURS = ["6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm"];
+var BLOCK_CYCLE = {"":"S","S":"B","B":"K","K":""};
+var BLOCK_NAME = {"S":"Strategic","B":"Buffer","K":"Breakout"};
+
+/* ---------- pure helpers (unit-testable, no DOM) ---------- */
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function pad(n){ return n<10 ? "0"+n : ""+n; }
+function todayISO(d){ d = d || new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function parseISO(s){
+  if(!s) return null;
+  var p = String(s).split("-");
+  if(p.length!==3) return null;
+  var d = new Date(+p[0], +p[1]-1, +p[2]);
+  return isNaN(d.getTime()) ? null : d;
+}
+function daysBetween(a,b){
+  if(!a||!b) return 0;
+  var MS = 86400000;
+  var ua = Date.UTC(a.getFullYear(),a.getMonth(),a.getDate());
+  var ub = Date.UTC(b.getFullYear(),b.getMonth(),b.getDate());
+  return Math.round((ub-ua)/MS);
+}
+function addDays(d,n){ var x = new Date(d.getTime()); x.setDate(x.getDate()+n); return x; }
+function fmtDate(s){
+  var d = parseISO(s); if(!d) return "—";
+  var M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return d.getDate()+" "+M[d.getMonth()]+" "+d.getFullYear();
+}
+/* Week number within the cycle: 1..13 (13 = reflection week). 0 = not started yet. */
+function weekOf(startISO, todayStr){
+  var s = parseISO(startISO), t = parseISO(todayStr || todayISO());
+  if(!s || !t) return 0;
+  var d = daysBetween(s,t);
+  if(d < 0) return 0;
+  var w = Math.floor(d/7) + 1;
+  return w > 13 ? 13 : w;
+}
+function weekStartISO(startISO, w){
+  var s = parseISO(startISO); if(!s) return "";
+  return todayISO(addDays(s,(w-1)*7));
+}
+function weekEndISO(startISO, w){
+  var s = parseISO(startISO); if(!s) return "";
+  return todayISO(addDays(s,(w-1)*7+6));
+}
+function daysRemaining(startISO, todayStr){
+  var s = parseISO(startISO), t = parseISO(todayStr || todayISO());
+  if(!s || !t) return 0;
+  /* 12 weeks of 7 days is days 0..83 (day 1 to day 84 inclusive) — the same day week 12
+     ends on per weekEndISO(start,12). This must never drift from that, or the countdown
+     and the week-12 end date shown in Settings would disagree by a week. */
+  var end = addDays(s, 11*7 + 6);
+  var d = daysBetween(t,end);
+  return d < 0 ? 0 : d;
+}
+function isCycleOver(startISO, todayStr){
+  var s = parseISO(startISO), t = parseISO(todayStr || todayISO());
+  if(!s||!t) return false;
+  return daysBetween(s,t) > (12*7 - 1);
+}
+/* planned = tactics ticked as scheduled for that week; done = those actually completed */
+function scoreForWeek(cycle, w){
+  var planned = 0, done = 0;
+  (cycle.tactics||[]).forEach(function(t){
+    if(t.weeks && t.weeks[w-1]){
+      planned++;
+      if(t.done && t.done[w-1]) done++;
+    }
+  });
+  return { planned: planned, done: done, pct: planned ? Math.round(done*100/planned) : null };
+}
+function elapsedWeeks(cycle, todayStr){
+  var w = weekOf(cycle.startDate, todayStr);
+  if(w === 0) return 0;
+  return w > 12 ? 12 : w;
+}
+/* overall execution = all done checks / all planned checks across weeks that have started */
+function cycleStats(cycle, todayStr){
+  var w = weekOf(cycle.startDate, todayStr);
+  var el = elapsedWeeks(cycle, todayStr);
+  var planned = 0, done = 0, weekly = [];
+  for(var i=1;i<=12;i++){
+    var s = scoreForWeek(cycle,i);
+    weekly.push(s);
+    if(i <= el){ planned += s.planned; done += s.done; }
+  }
+  var overall = planned ? Math.round(done*100/planned) : null;
+  /* streak = consecutive most-recent elapsed weeks at or above 85% */
+  var streak = 0;
+  for(var j=el;j>=1;j--){
+    var p = weekly[j-1].pct;
+    if(p !== null && p >= 85) streak++; else break;
+  }
+  var goals = (cycle.goals||[]).length;
+  var tactics = (cycle.tactics||[]).length;
+  var openThisWeek = 0, dueThisWeek = 0;
+  if(w >= 1 && w <= 12){
+    (cycle.tactics||[]).forEach(function(t){
+      if(t.weeks && t.weeks[w-1]){
+        dueThisWeek++;
+        if(!(t.done && t.done[w-1])) openThisWeek++;
+      }
+    });
+  }
+  return {
+    week: w, elapsed: el, weekly: weekly, overall: overall, streak: streak,
+    plannedTotal: planned, doneTotal: done,
+    goals: goals, tactics: tactics,
+    dueThisWeek: dueThisWeek, openThisWeek: openThisWeek,
+    daysLeft: daysRemaining(cycle.startDate, todayStr),
+    over: isCycleOver(cycle.startDate, todayStr)
+  };
+}
+/* lag indicator progress for a goal: 0..100 (null when not measurable) */
+function goalProgress(goal){
+  var cur = parseFloat(goal.current), tgt = parseFloat(goal.target), st = parseFloat(goal.startValue);
+  if(isNaN(cur) || isNaN(tgt)) return null;
+  if(isNaN(st)) st = 0;
+  if(tgt === st) return cur >= tgt ? 100 : 0;
+  var p = Math.round((cur - st) * 100 / (tgt - st));
+  if(p < 0) p = 0; if(p > 100) p = 100;
+  return p;
+}
+function scoreClass(pct){
+  if(pct === null) return "s-none";
+  if(pct >= 85) return "s-ok";
+  if(pct >= 60) return "s-mid";
+  return "s-bad";
+}
+function esc(s){
+  return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ---------- storage ---------- */
+var DB = null, state = { view:"dash", pop:false };
+
+function blankCycle(name, startISO){
+  return {
+    id: uid(), name: name || "Cycle 1", startDate: startISO || todayISO(),
+    vision: { long:"", mid:"", twelve:"", areas:{} },
+    goals: [], tactics: [],
+    weeks: [], /* {n, wins, misses, rating, notes} */
+    modelWeek: {},
+    reflection: { worked:"", didnt:"", lessons:"", next:"", rating:"" },
+    closed: false, finalScore: null
+  };
+}
+function defaultDB(){
+  var c = blankCycle("Cycle 1", todayISO());
+  seedSample(c);
+  return { settings:{ accent:ACCENTS[0], style:"calm", theme:"light", seeded:true }, cycles:[c], activeId:c.id };
+}
+function seedSample(c){
+  c.vision.long = "Run a profitable one-person studio that funds a calm life and pays for a house deposit.";
+  c.vision.mid  = "Two reliable income streams, six months of expenses saved, running 5k three times a week.";
+  c.vision.twelve = "Ship the studio website, land 3 retainer clients, and hold a 4-morning-a-week deep work habit.";
+  c.vision.areas["Career / Business"] = "3 retainer clients signed";
+  c.vision.areas["Money"] = "Save $4,000 this cycle";
+  c.vision.areas["Health & Fitness"] = "Run 100km total";
+  var g1 = { id:uid(), name:"Sign 3 retainer clients", metric:"signed retainers", startValue:"0", current:"1", target:"3", lead:"12 outreach emails + 3 calls per week", why:"Predictable income replaces one-off project panic." };
+  var g2 = { id:uid(), name:"Save $4,000", metric:"USD saved", startValue:"0", current:"1450", target:"4000", lead:"Transfer $340 every Friday", why:"Six-month buffer means I can say no to bad work." };
+  var g3 = { id:uid(), name:"Run 100 km", metric:"km run", startValue:"0", current:"38", target:"100", lead:"Three runs per week, Tue/Thu/Sun", why:"Energy for deep work comes from training." };
+  c.goals = [g1,g2,g3];
+  function T(goalId, text, weeks){
+    var w = [], d = [];
+    for(var i=0;i<12;i++){ w.push(weeks.indexOf(i+1) >= 0); d.push(false); }
+    return { id:uid(), goalId:goalId, text:text, weeks:w, done:d };
+  }
+  var all = [1,2,3,4,5,6,7,8,9,10,11,12];
+  c.tactics = [
+    T(g1.id, "Send 12 outreach emails", all),
+    T(g1.id, "Book and run 3 discovery calls", all),
+    T(g1.id, "Publish one case study", [2,5,8,11]),
+    T(g2.id, "Transfer $340 to savings", all),
+    T(g2.id, "Review subscriptions and cancel one", [1,7]),
+    T(g3.id, "Three runs (Tue/Thu/Sun)", all),
+    T(g3.id, "Long run 10km+", [4,8,12])
+  ];
+  /* mark the first two weeks as executed so the scorecard is not empty on open */
+  c.tactics.forEach(function(t,idx){
+    for(var w=0; w<2; w++){
+      if(t.weeks[w]) t.done[w] = !(idx === 2 && w === 1);
+    }
+  });
+  c.weeks = [
+    { n:1, wins:"Sent 14 emails, two replies. Ran all three runs.", misses:"Case study slipped to Friday night.", rating:"4", notes:"Mornings before email is the only time this works." },
+    { n:2, wins:"First retainer signed. Savings transfer automated.", misses:"Skipped the case study entirely.", rating:"3", notes:"Block Wednesday morning for writing, not Friday." }
+  ];
+  var mw = {};
+  ["Mon","Tue","Wed","Thu","Fri"].forEach(function(d){ mw[d+"|8am"]="S"; mw[d+"|9am"]="S"; mw[d+"|10am"]="S"; });
+  ["Mon","Wed","Fri"].forEach(function(d){ mw[d+"|2pm"]="B"; mw[d+"|3pm"]="B"; });
+  mw["Sat|10am"]="K"; mw["Sat|11am"]="K"; mw["Sun|10am"]="K";
+  c.modelWeek = mw;
+}
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){ DB = JSON.parse(raw); }
+  }catch(e){ DB = null; }
+  if(!DB || !DB.cycles || !DB.cycles.length){ DB = defaultDB(); save(); }
+  if(!DB.settings) DB.settings = { accent:ACCENTS[0], style:"calm", theme:"light" };
+  /* one-time migration: anyone who opened an early build gets the current default look once */
+  if(!DB.settings.styleSeeded){ DB.settings.style = DB.settings.style || "calm"; DB.settings.styleSeeded = true; }
+  if(!DB.activeId || !cycleById(DB.activeId)) DB.activeId = DB.cycles[0].id;
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){}
+}
+function cycleById(id){
+  for(var i=0;i<DB.cycles.length;i++) if(DB.cycles[i].id===id) return DB.cycles[i];
+  return null;
+}
+function active(){ return cycleById(DB.activeId) || DB.cycles[0]; }
+
+/* ---------- theme / style ---------- */
+function applyLook(){
+  var s = DB.settings;
+  document.documentElement.style.setProperty("--accent", s.accent);
+  document.documentElement.style.setProperty("--accent-d", shade(s.accent,-18));
+  document.documentElement.style.setProperty("--accent-l", s.theme==="dark" ? shade(s.accent,-62) : tint(s.accent,88));
+  document.body.setAttribute("data-style", s.style || "calm");
+  document.documentElement.setAttribute("data-theme", s.theme === "dark" ? "dark" : "light");
+  var tb = document.getElementById("themeBtn");
+  if(tb) tb.textContent = s.theme === "dark" ? "Light" : "Dark";
+}
+function hex2rgb(h){ h=h.replace("#",""); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2]; return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+function rgb2hex(r){ return "#"+r.map(function(v){ v=Math.max(0,Math.min(255,Math.round(v))); return pad2(v.toString(16)); }).join(""); }
+function pad2(s){ return s.length<2 ? "0"+s : s; }
+function shade(hex,pct){ var c=hex2rgb(hex); return rgb2hex(c.map(function(v){ return v + (pct/100)*(pct<0?v:255-v); })); }
+function tint(hex,pct){ var c=hex2rgb(hex); return rgb2hex(c.map(function(v){ return v + (pct/100)*(255-v); })); }
+
+/* ---------- shell ---------- */
+var VIEWS = [
+  ["dash","Dashboard"],
+  ["vision","Vision"],
+  ["goals","Goals"],
+  ["score","Scorecard"],
+  ["week","Model Week"],
+  ["review","Weekly Review"],
+  ["reflect","13th Week"],
+  ["history","History"],
+  ["settings","Settings"]
+];
+function renderTabs(){
+  var h = "";
+  VIEWS.forEach(function(v){
+    h += '<button class="tab'+(state.view===v[0]?" on":"")+'" data-v="'+v[0]+'">'+v[1]+'</button>';
+  });
+  document.getElementById("tabs").innerHTML = h;
+}
+function renderCycleBar(){
+  var c = active(), st = cycleStats(c);
+  var opts = DB.cycles.map(function(x){ return '<option value="'+x.id+'"'+(x.id===c.id?" selected":"")+'>'+esc(x.name)+'</option>'; }).join("");
+  var wlab = st.week === 0 ? "Starts "+fmtDate(c.startDate)
+           : st.week >= 13 ? "Week 13 · reflection"
+           : "Week "+st.week+" of 12";
+  document.getElementById("cyclebar").innerHTML =
+    '<select id="cycleSel" style="width:auto;min-width:170px;font-weight:700">'+opts+'</select>'
+    + '<span class="pill live">'+wlab+'</span>'
+    + '<span class="pill">Execution <b>'+(st.overall===null?"—":st.overall+"%")+'</b></span>'
+    + '<span class="pill">Days left <b>'+st.daysLeft+'</b></span>'
+    + (st.openThisWeek ? '<span class="pill">Open this week <b>'+st.openThisWeek+'</b></span>' : '')
+    + '<button class="btn sm ghost" id="newCycle">New cycle</button>';
+}
+function setView(v){ state.view = v; render(); }
+function render(){
+  applyLook();
+  renderTabs();
+  renderCycleBar();
+  var f = ({ dash:viewDash, vision:viewVision, goals:viewGoals, score:viewScore,
+             week:viewModelWeek, review:viewReview, reflect:viewReflect,
+             history:viewHistory, settings:viewSettings })[state.view] || viewDash;
+  document.getElementById("view").innerHTML = f();
+  bindView();
+}
+
+/* ---------- dashboard ---------- */
+function viewDash(){
+  var c = active(), st = cycleStats(c);
+  var h = "";
+  h += '<div class="grid g4" style="margin-bottom:14px">';
+  h += kpi("This week", st.week===0?"—":(st.week>12?"13":st.week), st.week===0?"cycle not started":"of 12 weeks");
+  h += kpi("Execution score", st.overall===null?"—":st.overall+"%", st.overall===null?"nothing scored yet":st.doneTotal+" of "+st.plannedTotal+" tactics done", st.overall===null?null:(st.overall>=85?"ok":st.overall>=60?"warn":"bad"));
+  h += kpi("Weeks at 85%+", st.streak, "current streak");
+  h += kpi("Days remaining", st.daysLeft, st.over?"cycle finished":"in this cycle");
+  h += '</div>';
+
+  h += '<div class="grid g2">';
+  /* execution trend */
+  h += '<div class="card"><h2>Execution trend</h2><div class="sub">Each bar is one week. The 12 Week Year target is 85% or better.</div>';
+  h += '<div class="spark">';
+  st.weekly.forEach(function(s,i){
+    var w = i+1, pct = s.pct;
+    var cls = w > st.elapsed ? "future" : (pct===null ? "future" : (pct>=85?"":(pct>=60?"mid":"low")));
+    var hgt = pct===null ? 6 : Math.max(6, pct);
+    h += '<i class="'+cls+(w===st.week?" now":"")+'" style="height:'+hgt+'%" title="Week '+w+': '+(pct===null?"not scored":pct+"%")+'"></i>';
+  });
+  h += '</div><div class="sparkx">';
+  for(var i=1;i<=12;i++) h += '<span>'+i+'</span>';
+  h += '</div></div>';
+
+  /* this week */
+  h += '<div class="card"><h2>Due this week</h2><div class="sub">'
+     + (st.week===0 ? "This cycle starts on "+fmtDate(c.startDate)+"."
+        : st.week>12 ? "Week 13 — time to reflect and plan the next cycle."
+        : "Week "+st.week+" · "+fmtDate(weekStartISO(c.startDate,st.week))+" to "+fmtDate(weekEndISO(c.startDate,st.week)))
+     + '</div>';
+  if(st.week>=1 && st.week<=12){
+    var rows = (c.tactics||[]).filter(function(t){ return t.weeks[st.week-1]; });
+    if(!rows.length) h += '<div class="empty">No tactics scheduled for this week. Add some on the Goals tab.</div>';
+    else {
+      h += '<ul class="list">';
+      rows.forEach(function(t){
+        var g = goalOf(c,t.goalId);
+        var done = t.done && t.done[st.week-1];
+        h += '<li><input type="checkbox" class="tchk" data-id="'+t.id+'" data-w="'+st.week+'"'+(done?" checked":"")+' style="width:18px;height:18px;accent-color:var(--accent)">'
+          + '<span style="flex:1'+(done?";text-decoration:line-through;color:var(--grey)":"")+'">'+esc(t.text)+'<span class="mini" style="display:block">'+esc(g?g.name:"No goal")+'</span></span></li>';
+      });
+      h += '</ul>';
+    }
+  } else {
+    h += '<div class="empty">'+(st.week===0?"Nothing due yet.":"The 12 weeks are done — open the 13th Week tab.")+'</div>';
+  }
+  h += '</div></div>';
+
+  /* goals progress */
+  h += '<div class="card"><h2>Goal progress</h2><div class="sub">Lag indicators — the results you are measuring.</div>';
+  if(!(c.goals||[]).length) h += '<div class="empty">No goals yet. Add 2–3 on the Goals tab — the method says no more than three.</div>';
+  else {
+    h += '<div class="tw"><table><thead><tr><th>Goal</th><th>Now</th><th>Target</th><th style="width:34%">Progress</th></tr></thead><tbody>';
+    c.goals.forEach(function(g){
+      var p = goalProgress(g);
+      h += '<tr><td><b>'+esc(g.name)+'</b><span class="mini" style="display:block">'+esc(g.lead||"")+'</span></td>'
+        + '<td>'+esc(g.current||"—")+' <span class="mini">'+esc(g.metric||"")+'</span></td>'
+        + '<td>'+esc(g.target||"—")+'</td>'
+        + '<td>'+(p===null?'<span class="mini">not measurable</span>':'<div class="bar"><i style="width:'+p+'%"></i></div><span class="mini">'+p+'%</span>')+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  h += '</div>';
+
+  /* week scores table */
+  h += '<div class="card"><h2>Weekly scores</h2><div class="sub">Calculated from your tactic check-offs — nothing to total up by hand.</div><div class="tw"><table><thead><tr><th>Week</th><th>Dates</th><th>Planned</th><th>Done</th><th>Score</th><th>Status</th></tr></thead><tbody>';
+  for(var w=1;w<=12;w++){
+    var s = st.weekly[w-1];
+    var stat = w > st.elapsed ? '<span class="tag">upcoming</span>'
+      : s.pct===null ? '<span class="tag">nothing planned</span>'
+      : s.pct>=85 ? '<span class="tag ok">on track</span>'
+      : s.pct>=60 ? '<span class="tag warn">slipping</span>'
+      : '<span class="tag bad">off track</span>';
+    h += '<tr'+(w===st.week?' style="background:var(--accent-l)"':'')+'><td><b>'+w+'</b>'+(w===st.week?' <span class="tag acc">now</span>':'')+'</td>'
+      + '<td class="mini">'+fmtDate(weekStartISO(c.startDate,w))+' – '+fmtDate(weekEndISO(c.startDate,w))+'</td>'
+      + '<td>'+s.planned+'</td><td>'+s.done+'</td>'
+      + '<td><span class="wkscore '+scoreClass(w>st.elapsed?null:s.pct)+'">'+(w>st.elapsed||s.pct===null?"—":s.pct+"%")+'</span></td>'
+      + '<td>'+stat+'</td></tr>';
+  }
+  h += '</tbody></table></div></div>';
+  return h;
+}
+function kpi(k,v,n,tone){
+  var col = tone==="ok" ? "var(--ok)" : tone==="warn" ? "var(--warn)" : tone==="bad" ? "var(--bad)" : "var(--ink)";
+  return '<div class="kpi"><div class="k">'+esc(k)+'</div><div class="v" style="color:'+col+'">'+esc(v)+'</div><div class="n">'+esc(n||"")+'</div></div>';
+}
+function goalOf(c,id){ for(var i=0;i<(c.goals||[]).length;i++) if(c.goals[i].id===id) return c.goals[i]; return null; }
+
+/* ---------- vision ---------- */
+function viewVision(){
+  var c = active();
+  var h = '<div class="card"><h2>Vision</h2><div class="sub">The method starts here: a long-term vision, then what the next three years look like, then what these 12 weeks must deliver.</div>';
+  h += '<div style="margin-bottom:12px"><label>Long-term vision (5–15 years)</label><textarea data-v="long">'+esc(c.vision.long)+'</textarea></div>';
+  h += '<div style="margin-bottom:12px"><label>Mid-term vision (about 3 years)</label><textarea data-v="mid">'+esc(c.vision.mid)+'</textarea></div>';
+  h += '<div><label>This 12-week vision</label><textarea data-v="twelve">'+esc(c.vision.twelve)+'</textarea></div></div>';
+  h += '<div class="card"><h2>Eight life areas</h2><div class="sub">One line each. Blank is fine — this is a check that you are not winning at work while losing everywhere else.</div><div class="grid g2">';
+  AREAS.forEach(function(a){
+    h += '<div><label>'+esc(a)+'</label><input data-area="'+esc(a)+'" value="'+esc(c.vision.areas[a]||"")+'"></div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+/* ---------- goals + tactics ---------- */
+function viewGoals(){
+  var c = active();
+  var h = '<div class="card"><h2>Goals for this cycle</h2><div class="sub">Two or three. Each needs a number you can measure (the lag indicator) and the weekly activity that drives it (the lead indicator).</div>';
+  if(!(c.goals||[]).length) h += '<div class="empty">No goals yet.</div>';
+  (c.goals||[]).forEach(function(g,i){
+    var p = goalProgress(g);
+    h += '<div style="border:1px solid var(--rule);border-radius:10px;padding:12px;margin-bottom:12px">';
+    h += '<div class="row"><div style="flex:2"><label>Goal '+(i+1)+'</label><input data-g="'+g.id+'" data-f="name" value="'+esc(g.name)+'"></div>'
+      + '<div><label>Unit / metric</label><input data-g="'+g.id+'" data-f="metric" value="'+esc(g.metric||"")+'" placeholder="e.g. clients, km, USD"></div></div>';
+    h += '<div class="row" style="margin-top:10px"><div><label>Start value</label><input data-g="'+g.id+'" data-f="startValue" value="'+esc(g.startValue||"")+'"></div>'
+      + '<div><label>Current</label><input data-g="'+g.id+'" data-f="current" value="'+esc(g.current||"")+'"></div>'
+      + '<div><label>Target</label><input data-g="'+g.id+'" data-f="target" value="'+esc(g.target||"")+'"></div>'
+      + '<div style="flex:0 0 120px"><label>Progress</label>'+(p===null?'<span class="mini">—</span>':'<div class="bar"><i style="width:'+p+'%"></i></div><span class="mini">'+p+'%</span>')+'</div></div>';
+    h += '<div class="row" style="margin-top:10px"><div style="flex:2"><label>Lead indicator (the weekly activity)</label><input data-g="'+g.id+'" data-f="lead" value="'+esc(g.lead||"")+'" placeholder="e.g. 12 outreach emails per week"></div>'
+      + '<div style="flex:2"><label>Why this matters</label><input data-g="'+g.id+'" data-f="why" value="'+esc(g.why||"")+'"></div>'
+      + '<div style="flex:0 0 90px"><label>&nbsp;</label><button class="btn sm danger" data-delgoal="'+g.id+'">Delete</button></div></div>';
+    h += '</div>';
+  });
+  h += '<button class="btn" id="addGoal">Add goal</button>';
+  if((c.goals||[]).length >= 3) h += ' <span class="mini">Three is the method\'s limit — a fourth goal usually means none of them get done.</span>';
+  h += '</div>';
+
+  /* tactics */
+  h += '<div class="card"><h2>Weekly tactics</h2><div class="sub">Break each goal into the actions you will repeat. Tick the weeks each one is scheduled for — that becomes your scorecard.</div>';
+  var gopts = (c.goals||[]).map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>'; }).join("");
+  h += '<div class="row" style="margin-bottom:12px"><div style="flex:2"><label>New tactic</label><input id="newTacticText" placeholder="e.g. Send 12 outreach emails"></div>'
+    + '<div><label>Goal</label><select id="newTacticGoal">'+(gopts||'<option value="">— add a goal first —</option>')+'</select></div>'
+    + '<div style="flex:0 0 200px"><label>Schedule</label><select id="newTacticWeeks"><option value="all">Every week (1–12)</option><option value="odd">Odd weeks</option><option value="even">Even weeks</option><option value="none">No weeks yet</option></select></div>'
+    + '<div style="flex:0 0 90px"><label>&nbsp;</label><button class="btn" id="addTactic">Add</button></div></div>';
+  if(!(c.tactics||[]).length){ h += '<div class="empty">No tactics yet.</div>'; }
+  else {
+    h += '<div class="tw"><table class="mx"><thead><tr><th class="name">Tactic</th>';
+    for(var w=1;w<=12;w++) h += '<th class="wk">'+w+'</th>';
+    h += '<th></th></tr></thead><tbody>';
+    (c.tactics||[]).forEach(function(t){
+      var g = goalOf(c,t.goalId);
+      h += '<tr><td class="name">'+esc(t.text)+'<span class="goaltag">'+esc(g?g.name:"No goal")+'</span></td>';
+      for(var w2=1;w2<=12;w2++){
+        h += '<td class="wk"><input type="checkbox" class="plan" data-id="'+t.id+'" data-w="'+w2+'"'+(t.weeks[w2-1]?" checked":"")+'></td>';
+      }
+      h += '<td><button class="btn sm danger" data-deltac="'+t.id+'">×</button></td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* ---------- scorecard ---------- */
+function viewScore(){
+  var c = active(), st = cycleStats(c);
+  var h = '<div class="card"><h2>Weekly scorecard</h2><div class="sub">Tick what you actually did. Every score below calculates itself — no formulas to drag, nothing to total.</div>';
+  if(!(c.tactics||[]).length){ h += '<div class="empty">Add tactics on the Goals tab first.</div></div>'; return h; }
+  h += '<div class="tw"><table class="mx"><thead><tr><th class="name">Tactic</th>';
+  for(var w=1;w<=12;w++) h += '<th class="wk"'+(w===st.week?' style="color:var(--accent)"':'')+'>'+w+'</th>';
+  h += '</tr></thead><tbody>';
+  (c.tactics||[]).forEach(function(t){
+    var g = goalOf(c,t.goalId);
+    h += '<tr><td class="name">'+esc(t.text)+'<span class="goaltag">'+esc(g?g.name:"No goal")+'</span></td>';
+    for(var w2=1;w2<=12;w2++){
+      if(!t.weeks[w2-1]) h += '<td class="wk mini" style="color:var(--rule)">·</td>';
+      else h += '<td class="wk"><input type="checkbox" class="tchk" data-id="'+t.id+'" data-w="'+w2+'"'+(t.done&&t.done[w2-1]?" checked":"")+'></td>';
+    }
+    h += '</tr>';
+  });
+  h += '<tr><td class="name"><b>Week score</b></td>';
+  for(var w3=1;w3<=12;w3++){
+    var s = st.weekly[w3-1];
+    var show = (w3 > st.elapsed || s.pct===null) ? "—" : s.pct+"%";
+    h += '<td class="wk"><span class="wkscore '+scoreClass(w3>st.elapsed?null:s.pct)+'">'+show+'</span></td>';
+  }
+  h += '</tr></tbody></table></div>';
+  h += '<div class="row" style="margin-top:14px"><div><span class="tag ok">85%+ on track</span> <span class="tag warn">60–84% slipping</span> <span class="tag bad">under 60% off track</span></div></div>';
+  h += '</div>';
+  h += '<div class="grid g3">'
+     + kpi("Overall execution", st.overall===null?"—":st.overall+"%", st.doneTotal+" of "+st.plannedTotal+" scheduled tactics", st.overall===null?null:(st.overall>=85?"ok":st.overall>=60?"warn":"bad"))
+     + kpi("Weeks at 85%+", st.streak, "consecutive, most recent first")
+     + kpi("Open this week", st.openThisWeek, st.week>=1&&st.week<=12?("of "+st.dueThisWeek+" due in week "+st.week):"cycle not running")
+     + '</div>';
+  return h;
+}
+
+/* ---------- model week ---------- */
+function viewModelWeek(){
+  var c = active();
+  var h = '<div class="card"><h2>Model week</h2><div class="sub">Click a slot to cycle it through Strategic, Buffer and Breakout time. Strategic blocks are where goal work actually happens.</div>';
+  h += '<div class="row" style="margin-bottom:12px"><div><span class="tag" style="background:var(--accent);color:#fff">Strategic</span> uninterrupted goal work</div>'
+    + '<div><span class="tag" style="background:var(--navy);color:#fff">Buffer</span> email, admin, the small stuff</div>'
+    + '<div><span class="tag" style="background:var(--warn);color:#fff">Breakout</span> deliberate time off</div></div>';
+  h += '<div class="mw"><table><thead><tr><th></th>';
+  DAYS.forEach(function(d){ h += '<th style="text-align:center">'+d+'</th>'; });
+  h += '</tr></thead><tbody>';
+  HOURS.forEach(function(hr){
+    h += '<tr><td class="mini" style="white-space:nowrap">'+hr+'</td>';
+    DAYS.forEach(function(d){
+      var k = d+"|"+hr, v = c.modelWeek[k] || "";
+      h += '<td class="slot"><button class="blk" data-slot="'+k+'" data-t="'+v+'">'+(v?BLOCK_NAME[v][0]:"")+'</button></td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  var counts = {S:0,B:0,K:0};
+  Object.keys(c.modelWeek).forEach(function(k){ if(counts[c.modelWeek[k]]!==undefined) counts[c.modelWeek[k]]++; });
+  h += '<div class="grid g3" style="margin-top:14px">'
+     + kpi("Strategic hours", counts.S, "per week, blocked")
+     + kpi("Buffer hours", counts.B, "for admin and email")
+     + kpi("Breakout hours", counts.K, "genuinely off")
+     + '</div>';
+  h += '</div>';
+  return h;
+}
+
+/* ---------- weekly review ---------- */
+function viewReview(){
+  var c = active(), st = cycleStats(c);
+  var w = st.week >= 1 && st.week <= 12 ? st.week : 1;
+  var h = '<div class="card"><h2>Weekly review</h2><div class="sub">Fifteen minutes, once a week. This is the accountability meeting the method is built on.</div>';
+  var opts = "";
+  for(var i=1;i<=12;i++) opts += '<option value="'+i+'"'+(i===w?" selected":"")+'>Week '+i+' · '+fmtDate(weekStartISO(c.startDate,i))+'</option>';
+  h += '<div class="row" style="margin-bottom:12px"><div style="flex:0 0 260px"><label>Reviewing</label><select id="revWeek">'+opts+'</select></div>'
+     + '<div><label>That week\'s score</label><div style="padding-top:6px"><span class="wkscore '+scoreClass(st.weekly[w-1].pct)+'">'+(st.weekly[w-1].pct===null?"—":st.weekly[w-1].pct+"%")+'</span> <span class="mini">'+st.weekly[w-1].done+' of '+st.weekly[w-1].planned+' tactics</span></div></div></div>';
+  var rec = weekRec(c,w);
+  h += '<div style="margin-bottom:12px"><label>What went well</label><textarea data-rw="wins">'+esc(rec.wins||"")+'</textarea></div>';
+  h += '<div style="margin-bottom:12px"><label>What did not get done, and why</label><textarea data-rw="misses">'+esc(rec.misses||"")+'</textarea></div>';
+  h += '<div class="row"><div style="flex:0 0 200px"><label>Week rating (1–5)</label><select data-rw="rating">'
+     + [1,2,3,4,5].map(function(n){ return '<option value="'+n+'"'+(String(rec.rating)===String(n)?" selected":"")+'>'+n+'</option>'; }).join("")
+     + '<option value=""'+(!rec.rating?" selected":"")+'>—</option></select></div>'
+     + '<div><label>One change for next week</label><input data-rw="notes" value="'+esc(rec.notes||"")+'"></div></div>';
+  h += '</div>';
+
+  /* saved reviews */
+  var saved = (c.weeks||[]).filter(function(x){ return x.wins||x.misses||x.notes||x.rating; });
+  h += '<div class="card"><h2>Review history</h2><div class="sub">Every week you have written up, kept in one place.</div>';
+  if(!saved.length) h += '<div class="empty">No reviews written yet.</div>';
+  else {
+    h += '<div class="tw"><table><thead><tr><th>Week</th><th>Score</th><th>Rating</th><th>Went well</th><th>Missed</th><th>Change</th></tr></thead><tbody>';
+    saved.sort(function(a,b){ return a.n-b.n; }).forEach(function(r){
+      var s = st.weekly[r.n-1];
+      h += '<tr><td><b>'+r.n+'</b></td><td><span class="wkscore '+scoreClass(s?s.pct:null)+'">'+(s&&s.pct!==null?s.pct+"%":"—")+'</span></td>'
+        + '<td>'+esc(r.rating||"—")+'</td><td class="mini">'+esc(r.wins||"")+'</td><td class="mini">'+esc(r.misses||"")+'</td><td class="mini">'+esc(r.notes||"")+'</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  h += '</div>';
+  return h;
+}
+function weekRec(c,w){
+  c.weeks = c.weeks || [];
+  for(var i=0;i<c.weeks.length;i++) if(c.weeks[i].n===w) return c.weeks[i];
+  var r = { n:w, wins:"", misses:"", rating:"", notes:"" };
+  c.weeks.push(r);
+  return r;
+}
+
+/* ---------- 13th week ---------- */
+function viewReflect(){
+  var c = active(), st = cycleStats(c);
+  var r = c.reflection || (c.reflection = { worked:"", didnt:"", lessons:"", next:"", rating:"" });
+  var best = null, worst = null;
+  st.weekly.forEach(function(s,i){
+    if(s.pct===null || i+1 > st.elapsed) return;
+    if(best===null || s.pct > st.weekly[best].pct) best = i;
+    if(worst===null || s.pct < st.weekly[worst].pct) worst = i;
+  });
+  var h = '<div class="card"><h2>13th week reflection</h2><div class="sub">The week between cycles. Close this one honestly before planning the next.</div>';
+  h += '<div class="grid g4" style="margin-bottom:14px">'
+     + kpi("Final execution", st.overall===null?"—":st.overall+"%", st.doneTotal+" of "+st.plannedTotal+" tactics", st.overall===null?null:(st.overall>=85?"ok":st.overall>=60?"warn":"bad"))
+     + kpi("Best week", best===null?"—":"Week "+(best+1), best===null?"":st.weekly[best].pct+"% execution")
+     + kpi("Worst week", worst===null?"—":"Week "+(worst+1), worst===null?"":st.weekly[worst].pct+"% execution")
+     + kpi("Goals hit", (c.goals||[]).filter(function(g){ return goalProgress(g)===100; }).length+" / "+(c.goals||[]).length, "at 100% of target")
+     + '</div>';
+  h += '<div class="tw" style="margin-bottom:14px"><table><thead><tr><th>Goal</th><th>Start</th><th>Final</th><th>Target</th><th style="width:26%">Result</th></tr></thead><tbody>';
+  (c.goals||[]).forEach(function(g){
+    var p = goalProgress(g);
+    h += '<tr><td><b>'+esc(g.name)+'</b></td><td>'+esc(g.startValue||"—")+'</td><td>'+esc(g.current||"—")+'</td><td>'+esc(g.target||"—")+'</td>'
+      + '<td>'+(p===null?'<span class="mini">—</span>':'<div class="bar"><i style="width:'+p+'%"></i></div><span class="mini">'+p+'%'+(p===100?' · hit':'')+'</span>')+'</td></tr>';
+  });
+  if(!(c.goals||[]).length) h += '<tr><td colspan="5" class="empty">No goals in this cycle.</td></tr>';
+  h += '</tbody></table></div>';
+  h += '<div class="grid g2">';
+  h += '<div><label>What worked</label><textarea data-rf="worked">'+esc(r.worked)+'</textarea></div>';
+  h += '<div><label>What did not</label><textarea data-rf="didnt">'+esc(r.didnt)+'</textarea></div>';
+  h += '<div><label>Lessons to carry forward</label><textarea data-rf="lessons">'+esc(r.lessons)+'</textarea></div>';
+  h += '<div><label>The next cycle in one sentence</label><textarea data-rf="next">'+esc(r.next)+'</textarea></div>';
+  h += '</div>';
+  h += '<div style="margin-top:14px"><button class="btn" id="closeCycle">Close this cycle and start the next</button> <span class="mini">Saves the final score to History and opens a fresh 12 weeks, carrying your vision over.</span></div>';
+  h += '</div>';
+  return h;
+}
+
+/* ---------- history ---------- */
+function viewHistory(){
+  var h = '<div class="card"><h2>Cycle history</h2><div class="sub">Every cycle you have run, as many as you like — the whole point is the year-over-year line.</div>';
+  h += '<div class="tw"><table><thead><tr><th>Cycle</th><th>Started</th><th>Status</th><th>Goals</th><th>Execution</th><th></th></tr></thead><tbody>';
+  DB.cycles.forEach(function(c){
+    var st = cycleStats(c);
+    var score = c.closed && c.finalScore !== null ? c.finalScore : st.overall;
+    h += '<tr><td><b>'+esc(c.name)+'</b>'+(c.id===DB.activeId?' <span class="tag acc">open</span>':'')+'</td>'
+      + '<td class="mini">'+fmtDate(c.startDate)+'</td>'
+      + '<td>'+(c.closed?'<span class="tag">closed</span>':(st.over?'<span class="tag warn">12 weeks done</span>':'<span class="tag ok">running</span>'))+'</td>'
+      + '<td>'+(c.goals||[]).length+'</td>'
+      + '<td><span class="wkscore '+scoreClass(score===undefined?null:score)+'">'+(score===null||score===undefined?"—":score+"%")+'</span></td>'
+      + '<td>'+(c.id===DB.activeId?'':'<button class="btn sm ghost" data-open="'+c.id+'">Open</button> ')
+      + (DB.cycles.length>1?'<button class="btn sm danger" data-delcycle="'+c.id+'">Delete</button>':'')+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  var closed = DB.cycles.filter(function(c){ return c.closed && c.finalScore!==null; });
+  if(closed.length>1){
+    h += '<div style="margin-top:16px"><label>Execution across closed cycles</label><div class="spark">';
+    closed.forEach(function(c){ h += '<i style="height:'+Math.max(6,c.finalScore)+'%" class="'+(c.finalScore>=85?"":(c.finalScore>=60?"mid":"low"))+'" title="'+esc(c.name)+': '+c.finalScore+'%"></i>'; });
+    h += '</div><div class="sparkx">'+closed.map(function(c){ return '<span>'+esc(c.name.replace(/[^0-9]/g,"")||"·")+'</span>'; }).join("")+'</div></div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* ---------- settings ---------- */
+function viewSettings(){
+  var c = active();
+  var h = '<div class="card"><h2>This cycle</h2><div class="sub">The start date drives every week number, score and countdown in the app.</div>';
+  h += '<div class="row"><div><label>Cycle name</label><input id="cName" value="'+esc(c.name)+'"></div>'
+     + '<div><label>Start date</label><input id="cStart" type="date" value="'+esc(c.startDate)+'"></div>'
+     + '<div style="flex:0 0 auto"><label>&nbsp;</label><button class="btn" id="saveCycle">Save</button></div></div>';
+  h += '<div class="mini" style="margin-top:8px">Week 1 runs '+fmtDate(weekStartISO(c.startDate,1))+' – '+fmtDate(weekEndISO(c.startDate,1))
+     + ' · week 12 ends '+fmtDate(weekEndISO(c.startDate,12))+'.</div>';
+  h += '</div>';
+  h += '<div class="card"><h2>Backup and restore</h2><div class="sub">Everything lives in this browser on this device. Export a backup before clearing browser data or moving computers — it is also how you hand a copy to an accountability partner.</div>';
+  h += '<button class="btn" id="expBtn">Export backup (.json)</button> <button class="btn ghost" id="impBtn">Import backup</button> <input type="file" id="impFile" accept="application/json,.json" class="hide">';
+  h += '<div style="margin-top:12px"><button class="btn danger" id="resetBtn">Reset everything</button> <span class="mini">Deletes all cycles in this browser and reloads the sample data.</span></div>';
+  h += '</div>';
+  h += '<div class="card"><h2>About</h2><div class="sub">One HTML file. No account, no subscription, no internet needed after download. Nothing you type leaves this device — there are no network calls in this file at all.</div>'
+     + '<div class="mini">Not affiliated with, or endorsed by, the authors or publisher of any book. This is an independent planner built around the widely used 12-week planning method.</div></div>';
+  return h;
+}
+
+/* ---------- events ---------- */
+function bindView(){
+  var c = active();
+  var root = document.getElementById("view");
+
+  /* dashboard + scorecard: tick a tactic */
+  root.querySelectorAll(".tchk").forEach(function(el){
+    el.addEventListener("change", function(){
+      var t = tacticById(c, el.getAttribute("data-id")), w = +el.getAttribute("data-w");
+      if(!t) return;
+      t.done = t.done || [];
+      t.done[w-1] = el.checked;
+      save(); render();
+    });
+  });
+  /* goals view: plan a week */
+  root.querySelectorAll(".plan").forEach(function(el){
+    el.addEventListener("change", function(){
+      var t = tacticById(c, el.getAttribute("data-id")), w = +el.getAttribute("data-w");
+      if(!t) return;
+      t.weeks[w-1] = el.checked;
+      if(!el.checked && t.done) t.done[w-1] = false;
+      save(); render();
+    });
+  });
+  /* vision */
+  root.querySelectorAll("[data-v]").forEach(function(el){
+    el.addEventListener("input", function(){ c.vision[el.getAttribute("data-v")] = el.value; save(); });
+  });
+  root.querySelectorAll("[data-area]").forEach(function(el){
+    el.addEventListener("input", function(){ c.vision.areas[el.getAttribute("data-area")] = el.value; save(); });
+  });
+  /* goal fields */
+  root.querySelectorAll("[data-g]").forEach(function(el){
+    el.addEventListener("input", function(){
+      var g = goalOf(c, el.getAttribute("data-g"));
+      if(!g) return;
+      g[el.getAttribute("data-f")] = el.value;
+      save();
+      if(["current","target","startValue"].indexOf(el.getAttribute("data-f"))>=0) renderCycleBar();
+    });
+  });
+  var ag = document.getElementById("addGoal");
+  if(ag) ag.addEventListener("click", function(){
+    c.goals = c.goals || [];
+    c.goals.push({ id:uid(), name:"New goal", metric:"", startValue:"0", current:"0", target:"", lead:"", why:"" });
+    save(); render();
+  });
+  root.querySelectorAll("[data-delgoal]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var id = b.getAttribute("data-delgoal");
+      c.goals = (c.goals||[]).filter(function(g){ return g.id!==id; });
+      c.tactics = (c.tactics||[]).map(function(t){ if(t.goalId===id) t.goalId=""; return t; });
+      save(); render();
+    });
+  });
+  /* tactics */
+  var at = document.getElementById("addTactic");
+  if(at) at.addEventListener("click", function(){
+    var txt = (document.getElementById("newTacticText")||{}).value || "";
+    if(!txt.trim()) return;
+    var gid = (document.getElementById("newTacticGoal")||{}).value || "";
+    var mode = (document.getElementById("newTacticWeeks")||{}).value || "all";
+    var weeks = [], done = [];
+    for(var i=1;i<=12;i++){
+      var on = mode==="all" ? true : mode==="odd" ? (i%2===1) : mode==="even" ? (i%2===0) : false;
+      weeks.push(on); done.push(false);
+    }
+    c.tactics = c.tactics || [];
+    c.tactics.push({ id:uid(), goalId:gid, text:txt.trim(), weeks:weeks, done:done });
+    save(); render();
+  });
+  root.querySelectorAll("[data-deltac]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var id = b.getAttribute("data-deltac");
+      c.tactics = (c.tactics||[]).filter(function(t){ return t.id!==id; });
+      save(); render();
+    });
+  });
+  /* model week */
+  root.querySelectorAll("button.blk").forEach(function(b){
+    b.addEventListener("click", function(){
+      var k = b.getAttribute("data-slot");
+      var cur = c.modelWeek[k] || "";
+      var nx = BLOCK_CYCLE[cur];
+      if(nx) c.modelWeek[k] = nx; else delete c.modelWeek[k];
+      save(); render();
+    });
+  });
+  /* weekly review */
+  var rw = document.getElementById("revWeek");
+  if(rw) rw.addEventListener("change", function(){ state.revWeek = +rw.value; renderReviewInto(+rw.value); });
+  root.querySelectorAll("[data-rw]").forEach(function(el){
+    el.addEventListener("input", function(){
+      var w = +((document.getElementById("revWeek")||{}).value || 1);
+      var rec = weekRec(c,w);
+      rec[el.getAttribute("data-rw")] = el.value;
+      save();
+    });
+    el.addEventListener("change", function(){
+      var w = +((document.getElementById("revWeek")||{}).value || 1);
+      var rec = weekRec(c,w);
+      rec[el.getAttribute("data-rw")] = el.value;
+      save();
+    });
+  });
+  /* reflection */
+  root.querySelectorAll("[data-rf]").forEach(function(el){
+    el.addEventListener("input", function(){ c.reflection[el.getAttribute("data-rf")] = el.value; save(); });
+  });
+  var cc = document.getElementById("closeCycle");
+  if(cc) cc.addEventListener("click", function(){
+    var st = cycleStats(c);
+    c.closed = true;
+    c.finalScore = st.overall === null ? 0 : st.overall;
+    if(demoLimitReached()) return;
+    var n = blankCycle("Cycle "+(DB.cycles.length+1), todayISO());
+    n.vision = { long:c.vision.long, mid:c.vision.mid, twelve:"", areas:JSON.parse(JSON.stringify(c.vision.areas||{})) };
+    n.modelWeek = JSON.parse(JSON.stringify(c.modelWeek||{}));
+    DB.cycles.push(n); DB.activeId = n.id;
+    save(); state.view = "goals"; render();
+  });
+  /* history */
+  root.querySelectorAll("[data-open]").forEach(function(b){
+    b.addEventListener("click", function(){ DB.activeId = b.getAttribute("data-open"); save(); render(); });
+  });
+  root.querySelectorAll("[data-delcycle]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var id = b.getAttribute("data-delcycle");
+      if(DB.cycles.length<=1) return;
+      DB.cycles = DB.cycles.filter(function(x){ return x.id!==id; });
+      if(DB.activeId===id) DB.activeId = DB.cycles[0].id;
+      save(); render();
+    });
+  });
+  /* settings */
+  var sc = document.getElementById("saveCycle");
+  if(sc) sc.addEventListener("click", function(){
+    var n = (document.getElementById("cName")||{}).value, d = (document.getElementById("cStart")||{}).value;
+    if(n) c.name = n;
+    if(d && parseISO(d)) c.startDate = d;
+    save(); render();
+  });
+  var ex = document.getElementById("expBtn");
+  if(ex) ex.addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify(DB,null,2)], {type:"application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "12-week-year-backup-"+todayISO()+".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+  var ib = document.getElementById("impBtn"), ifl = document.getElementById("impFile");
+  if(ib && ifl){
+    ib.addEventListener("click", function(){ ifl.click(); });
+    ifl.addEventListener("change", function(){
+      var f = ifl.files && ifl.files[0]; if(!f) return;
+      var r = new FileReader();
+      r.onload = function(){
+        try{
+          var d = JSON.parse(r.result);
+          if(d && d.cycles && d.cycles.length){ DB = d; if(!cycleById(DB.activeId)) DB.activeId = DB.cycles[0].id; save(); render(); }
+        }catch(e){}
+      };
+      r.readAsText(f);
+    });
+  }
+  var rb = document.getElementById("resetBtn");
+  if(rb) rb.addEventListener("click", function(){
+    DB = defaultDB(); save(); state.view="dash"; render();
+  });
+}
+function renderReviewInto(w){ state.view="review"; render(); var sel=document.getElementById("revWeek"); if(sel) sel.value=w; }
+function tacticById(c,id){ for(var i=0;i<(c.tactics||[]).length;i++) if(c.tactics[i].id===id) return c.tactics[i]; return null; }
+
+/* shell events */
+document.getElementById("tabs").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-v]"); if(!b) return; setView(b.getAttribute("data-v"));
+});
+document.getElementById("cyclebar").addEventListener("change", function(e){
+  if(e.target && e.target.id==="cycleSel"){ DB.activeId = e.target.value; save(); render(); }
+});
+document.getElementById("cyclebar").addEventListener("click", function(e){
+  if(e.target && e.target.id==="newCycle"){
+    if(demoLimitReached()) return;
+    var n = blankCycle("Cycle "+(DB.cycles.length+1), todayISO());
+    var c = active();
+    n.vision = { long:c.vision.long, mid:c.vision.mid, twelve:"", areas:JSON.parse(JSON.stringify(c.vision.areas||{})) };
+    n.modelWeek = JSON.parse(JSON.stringify(c.modelWeek||{}));
+    DB.cycles.push(n); DB.activeId = n.id; save(); state.view="goals"; render();
+  }
+});
+document.getElementById("themeBtn").addEventListener("click", function(){
+  DB.settings.theme = DB.settings.theme==="dark" ? "light" : "dark"; save(); render();
+});
+document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
+document.getElementById("styleBtn").addEventListener("click", function(){
+  var p = document.getElementById("pop");
+  p.classList.toggle("hide");
+  if(!p.classList.contains("hide")) paintPop();
+});
+function paintPop(){
+  var sw = document.getElementById("swatches");
+  sw.innerHTML = ACCENTS.map(function(a){
+    return '<button data-a="'+a+'" style="background:'+a+'" class="'+(DB.settings.accent===a?"on":"")+'"></button>';
+  }).join("");
+  sw.querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click", function(){ DB.settings.accent = b.getAttribute("data-a"); save(); render(); paintPop(); });
+  });
+  var seg = document.getElementById("styleSeg");
+  seg.querySelectorAll("button").forEach(function(b){
+    b.classList.toggle("on", DB.settings.style === b.getAttribute("data-s"));
+    b.onclick = function(){ DB.settings.style = b.getAttribute("data-s"); save(); render(); paintPop(); };
+  });
+  var ca = document.getElementById("customAccent");
+  ca.value = /^#[0-9a-fA-F]{6}$/.test(DB.settings.accent) ? DB.settings.accent : "#0F7B6C";
+  ca.oninput = function(){ DB.settings.accent = ca.value; save(); applyLook(); };
+}
+document.addEventListener("click", function(e){
+  var p = document.getElementById("pop");
+  if(p && !p.classList.contains("hide") && !p.contains(e.target) && e.target.id!=="styleBtn") p.classList.add("hide");
+});
+
+/* boot */
+load();
+render();
+
+/* expose pure helpers for testing in Node (no effect in the browser) */
+if(typeof module !== "undefined" && module.exports){
+  module.exports = { weekOf:weekOf, daysRemaining:daysRemaining, scoreForWeek:scoreForWeek,
+    cycleStats:cycleStats, goalProgress:goalProgress, elapsedWeeks:elapsedWeeks,
+    weekStartISO:weekStartISO, weekEndISO:weekEndISO, isCycleOver:isCycleOver,
+    scoreClass:scoreClass, daysBetween:daysBetween, parseISO:parseISO, blankCycle:blankCycle, seedSample:seedSample };
+}
+</script>
+<div class="buildstamp noprint">12 Week Year Planner &middot; build 2026-09-18 &middot; LedgerLoopStudio</div>
+
+<!-- ===== LEDGERLOOPSTUDIO DEMO ENTRY LIMIT (10) ===== -->
+<script>
+(function(){
+  var DEMO_LIMIT = 10;
+  var DEMO_MSG = "Demo limit reached (10 entries). Get the full version on Etsy for unlimited entries!";
+  var addCount = 0;
+  function isAddButton(el){
+    if (!el || !el.textContent) return false;
+    var t = el.textContent.trim().toLowerCase();
+    if (t.indexOf('theme') > -1 || t.indexOf('font') > -1 || t.indexOf('mode') > -1) return false;
+    var addWords = ['add', 'save', 'create'];
+    for (var i = 0; i < addWords.length; i++){
+      if (t === addWords[i] || t.indexOf(addWords[i]+' ') === 0) return true;
+    }
+    if (t === '+') return true;
+    return false;
+  }
+  function showMsg(){
+    try { if (typeof toast === 'function') toast(DEMO_MSG); else alert(DEMO_MSG); }
+    catch(e){ alert(DEMO_MSG); }
+  }
+  function updateCounter(){
+    var c = document.getElementById('demo-entry-counter');
+    if (c) c.textContent = addCount + '/' + DEMO_LIMIT + ' entries used';
+  }
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('button,input[type="submit"],input[type="button"]') : null;
+    if (!btn || !isAddButton(btn)) return;
+    if (addCount >= DEMO_LIMIT) {
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+      showMsg(); return false;
+    }
+    addCount++; updateCounter();
+  }, true);
+  document.addEventListener('submit', function(e){
+    if (addCount >= DEMO_LIMIT) {
+      e.preventDefault(); e.stopPropagation(); showMsg(); return false;
+    }
+    addCount++; updateCounter();
+  }, true);
+})();
+</script>
+<!-- ===== /DEMO LIMIT ===== -->
+
+</body>
+</html>
